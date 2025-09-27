@@ -47,6 +47,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
 COPY ./app/. /app/app/
-COPY ./model/. /app/model/
+# COPY ./model/. /app/model/
 
 CMD ["streamlit", "run", "app/app.py", "--server.port", "8501"]
