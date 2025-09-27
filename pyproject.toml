@@ -1,0 +1,74 @@
+[project]
+name = "job-data-pipeline"
+description = "求人サイトのスクレイピング → DB格納(Supabase) → 可視化(Streamlit) までのETLパイプライン"
+version = "1.0.0"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pandas>=2.2.3",
+    "numpy>=1.26.4",
+    "matplotlib>=3.10.0",
+    "seaborn>=0.13.2",
+    "streamlit>=1.45.1",
+    "selenium>=4.25.0",
+    "beautifulsoup4>=4.12.3",
+    "requests>=2.32.3",
+    "lxml>=5.3.0",
+    "webdriver-manager>=4.0.2",
+    "psycopg2-binary>=2.9.9",
+    "supabase>=2.7.4",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+    "pytest>=8.3.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+# 有効化するルール
+# cf. https://beta.ruff.rs/docs/rules/
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle error
+    "F",  # Pyflakes
+    "I",  # isort
+    "W",  # pycodestyle warning
+]
+# 自動的に修正するルール
+fixable = ["E", "F", "I"]
+# 自動的に修正しないルール
+unfixable = ["W"]
+
+[tool.mypy]
+python_version = "3.12"
+# チェック項目
+warn_unreachable = true  # 到達不可能なコードがある場合に警告
+disallow_untyped_defs = true  # 型アノテーションのない関数を許可しない
+warn_return_any = true  # 戻り値の型が不明な場合に警告
+ignore_missing_imports = true  # サードパーティー製のライブラリを無視
+# 表示関係
+pretty = true
+show_error_context = true
+
+[tool.pytest]
+minversion = "6.0"
+addopts = "-svv --tb=short --capture=no --full-trace"
+testpaths = ["tests/*"]
+
+[tool.pytest.ini_options]
+# importlib import mode
+# cf. https://docs.pytest.org/en/latest/explanation/goodpractices.html#choosing-a-test-layout
+addopts = [
+    "--import-mode=importlib",
+]

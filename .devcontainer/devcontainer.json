@@ -1,0 +1,123 @@
+{
+  "name": "job-data-pipeline",
+  "dockerComposeFile": ["../compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "overrideCommand": true,
+  "customizations": {
+    "vscode": {
+      "settings": {
+        // Pythonのデフォルトのインタプリタパス
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          // ファイルの保存時にフォーマットを実行する
+          "editor.formatOnSave": true,
+          // ファイルの保存時のアクションを設定する
+          "editor.codeActionsOnSave": {
+            // リンター機能の実行し、修正可能なエラーを修正する
+            "source.fixAll.ruff": "explicit",
+            // インポート文の整理を行う
+            "source.organizeImports.ruff": "explicit"
+          },
+          // Ruffをフォーマッターとして利用する
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        // Notebookの保存時にフォーマットを実行する
+        "notebook.formatOnSave.enabled": true,
+        // Notebookの保存時のアクションを設定する
+        "notebook.codeActionsOnSave": {
+          // リンター機能の実行し、修正可能なエラーを修正する
+          "notebook.source.fixAll": "explicit",
+          // インポート文の整理を行う
+          "notebook.source.organizeImports": "explicit"
+        },
+        "autoDocstring.docstringFormat": "google",
+        "python.testing.pytestArgs": [
+          "tests",
+          "-vv", // 詳細結果の出力
+          "-s" // print文の出力
+        ],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        // コードセルの解析時にシェル割り当て(#!)、行マジック(#!%)およびセルマジック(#!%%)のコメントを解除します。
+        "jupyter.interactiveWindow.textEditor.magicCommandsAsComments": true,
+        // デバッグするときにライブラリコードにステップインできるようにする。
+        "jupyter.debugJustMyCode": false,
+        // 引数名を表示
+        "python.analysis.inlayHints.callArgumentNames": "all",
+        // 型を表示
+        "python.analysis.inlayHints.variableTypes": true,
+        // 戻り値の型を表示
+        "python.analysis.inlayHints.functionReturnTypes": true,
+        // デバッグ設定
+        "launch": {
+          "version": "0.2.0",
+          "configurations": [
+            // StreamlitでWebアプリケーションとして実行しながらデバッグする
+            {
+              "name": "Streamlit: サーバーを起動",
+              "type": "debugpy",
+              "request": "launch",
+              "module": "streamlit",
+              "cwd": "${workspaceFolder}",
+              "console": "internalConsole",
+              "args": [
+                "run",
+                "app/app.py",
+                "--server.port",
+                "8501",
+                "--server.runOnSave",
+                "true"
+              ],
+              "justMyCode": false
+            },
+            // 現在のファイル全体を実行してデバッグする
+            {
+              "name": "Python: Current File",
+              "type": "debugpy",
+              "request": "launch",
+              "program": "${file}",
+              "console": "internalConsole",
+              "justMyCode": false
+            },
+            // テストコードを書いてテストコードの範囲内（単体テストの場合は関数単位）でデバッグする
+            {
+              "name": "Python: Debug Test",
+              "type": "debugpy",
+              "request": "launch",
+              "purpose": ["debug-test"],
+              "console": "internalConsole",
+              "justMyCode": false
+            }
+          ]
+        }
+      },
+      "extensions": [
+        // 開発支援
+        "ceintl.vscode-language-pack-ja",
+        "github.copilot",
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+        "ibm.output-colorizer",
+        "editorconfig.editorconfig",
+        "mosapride.zenkaku",
+        "ionutvmi.path-autocomplete",
+        // python関連
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker",
+        "njpwerner.autodocstring",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        // Markdown関連
+        "yzane.markdown-pdf",
+        // CSV関連
+        "janisdd.vscode-edit-csv",
+        "mechatroner.rainbow-csv",
+        // Git関連
+        "mhutchie.git-graph"
+      ]
+    }
+  }
+}
