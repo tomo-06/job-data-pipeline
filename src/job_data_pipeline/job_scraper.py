@@ -66,5 +66,11 @@ def update_page(driver: webdriver.Chrome) -> None:
 # ================================
 def get_item_urls(driver: webdriver.Chrome) -> List[str]:
     """一覧ページから求人詳細URLを取得"""
-    elements = driver.find_elements(By.CLASS_NAME, "styles_bigCard__pKdMA")
+    elements = driver.find_elements(By.CLASS_NAME, "a.styles_bigCard__pKdMA")
     return [i.get_attribute("href") for i in elements]
+
+
+def get_comapny_name(driver: webdriver.Chrome) -> str:
+    """企業名を取得"""
+    company_name_element = driver.find_elements(By.CLASS_NAME, "styles_bodyText__KY7__")
+    return company_name_element[0].text if company_name_element else "不明"
