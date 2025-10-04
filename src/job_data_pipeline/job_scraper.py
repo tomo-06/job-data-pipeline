@@ -3,8 +3,9 @@
 """
 
 import time
-from typing import List
+from typing import Dict, List
 
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -74,3 +75,17 @@ def get_company_name(driver: webdriver.Chrome) -> str:
     """企業名を取得"""
     company_name_element = driver.find_elements(By.CLASS_NAME, "styles_bodyText__KY7__")
     return company_name_element[0].text if company_name_element else "不明"
+
+
+def get_info(driver: webdriver.Chrome) -> Dict[str, str]:
+    """求人ページから情報を取得"""
+    data = {"会社名": get_company_name(driver)}
+    table_elements = driver.find_elements(
+        By.CLASS_NAME, "styles_tableAboutApplication__9iz5B"
+    )
+
+    if table_elements:
+        table_html = table_elements[0].get_attribute("outerHTML")
+        df = pd.read_html(table_html)[0]
+        data.update({i_row[0]: i_row[1] for _, i_row in df.interrows()})
+    return data
