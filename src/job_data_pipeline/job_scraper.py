@@ -35,10 +35,10 @@ def init_driver() -> webdriver.Chrome:
 # ================================
 # ページ遷移処理
 # ================================
-"""検索ワードを入力して検索実行"""
 
 
 def search_jobs(driver: webdriver.Chrome, search_word: str) -> None:
+    """検索ワードを入力して検索実行"""
     driver.get(url)
     time.sleep(sleep_time)
 
@@ -51,4 +51,12 @@ def search_jobs(driver: webdriver.Chrome, search_word: str) -> None:
         "styles_button__slVGb.styles_middle__GPwzV.styles_primary__iQFwH.styles_searchButton__Bde1_",
     )
     button_element.click()
+    time.sleep(sleep_time)
+
+
+def update_page(driver: webdriver.Chrome) -> None:
+    """次のページに遷移"""
+    ul_element = driver.find_element(By.CSS_SELECTOR, ".styles_module__5CsjK")
+    a_element = ul_element.find_elements(By.TAG_NAME, "a")[-1]
+    driver.get(a_element.get_attribute("href"))
     time.sleep(sleep_time)
