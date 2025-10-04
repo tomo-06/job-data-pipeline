@@ -3,6 +3,7 @@
 """
 
 import time
+from typing import List
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -35,8 +36,6 @@ def init_driver() -> webdriver.Chrome:
 # ================================
 # ページ遷移処理
 # ================================
-
-
 def search_jobs(driver: webdriver.Chrome, search_word: str) -> None:
     """検索ワードを入力して検索実行"""
     driver.get(url)
@@ -60,3 +59,12 @@ def update_page(driver: webdriver.Chrome) -> None:
     a_element = ul_element.find_elements(By.TAG_NAME, "a")[-1]
     driver.get(a_element.get_attribute("href"))
     time.sleep(sleep_time)
+
+
+# ================================
+# データ取得処理
+# ================================
+def get_item_urls(driver: webdriver.Chrome) -> List[str]:
+    """一覧ページから求人詳細URLを取得"""
+    elements = driver.find_elements(By.CLASS_NAME, "styles_bigCard__pKdMA")
+    return [i.get_attribute("href") for i in elements]
