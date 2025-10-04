@@ -1,5 +1,9 @@
 # tests/test_job_scraper.py
-from job_data_pipeline.job_scraper import search_jobs, update_page
+from job_data_pipeline.job_scraper import (
+    get_item_urls,
+    search_jobs,
+    update_page,
+)
 
 
 # ================================
@@ -40,11 +44,18 @@ class DummyDriver:
     def __init__(self) -> None:
         self.visited_url = ""
         self.input_element = DummyElement()
+        # ページネーション用モック
         self.pagination_element = DummyElement()
         self.pagination_element.sub_elements = [
             DummyElement("https://next.rikunabi.com/page1"),
             DummyElement("https://next.rikunabi.com/page2"),
             DummyElement("https://next.rikunabi.com/page3"),
+        ]
+        # 求人カードリスク用モック
+        self.item_elements = [
+            DummyElement("https://next.rikunabi.com/datai1"),
+            DummyElement("https://next.rikunabi.com/datai2"),
+            DummyElement("https://next.rikunabi.com/datai3"),
         ]
 
     def get(self, url: str) -> None:
@@ -56,6 +67,12 @@ class DummyDriver:
             return self.pagination_element
         # "rnn-header__search__inner" が来たら input_element を返す
         return self.input_element
+
+    def find_elements(self, by: str, value: str) -> list[DummyElement]:
+        # get_item_urls用の要素リストを返す
+        if "styles_bigCard__pKdMA" in value:
+            return self.item_elements
+        return []
 
 
 # ================================
@@ -75,3 +92,13 @@ def test_update_page_with_mock() -> None:
     dummy_driver = DummyDriver()
     update_page(dummy_driver)
     assert dummy_driver.visited_url == "https://next.rikunabi.com/page3"
+
+
+def test_get_item_urls_with_mock() -> None:
+    """get_item_urls() のモックテスト"""
+    dummy_driver = DummyDriver()
+    urls = get_item_urls(dummy_driver)
+
+    assert len(urls) == 3
+    assert urls[0] == "https://next.rikunabi.com/datai1"
+    assert urls[-1] == "https://next.rikunabi.com/datai3"
