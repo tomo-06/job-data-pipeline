@@ -47,7 +47,7 @@ def search_jobs(driver: webdriver.Chrome, search_word: str) -> None:
     input_element.send_keys(search_word)
     button_element = driver.find_element(
         By.CSS_SELECTOR,
-        "styles_button__slVGb.styles_middle__GPwzV.styles_primary__iQFwH.styles_searchButton__Bde1_",
+        ".styles_button__slVGb.styles_middle__GPwzV.styles_primary__iQFwH.styles_searchButton__Bde1_",
     )
     button_element.click()
     time.sleep(sleep_time)
@@ -70,7 +70,7 @@ def get_item_urls(driver: webdriver.Chrome) -> List[str]:
     return [i.get_attribute("href") for i in elements]
 
 
-def get_comapny_name(driver: webdriver.Chrome) -> str:
+def get_company_name(driver: webdriver.Chrome) -> str:
     """企業名を取得"""
     company_name_element = driver.find_elements(By.CLASS_NAME, "styles_bodyText__KY7__")
     return company_name_element[0].text if company_name_element else "不明"

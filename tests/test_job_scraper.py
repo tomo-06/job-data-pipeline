@@ -1,5 +1,6 @@
 # tests/test_job_scraper.py
 from job_data_pipeline.job_scraper import (
+    get_company_name,
     get_item_urls,
     search_jobs,
     update_page,
@@ -57,6 +58,11 @@ class DummyDriver:
             DummyElement("https://next.rikunabi.com/datai2"),
             DummyElement("https://next.rikunabi.com/datai3"),
         ]
+        # 企業名要素リスト用モック
+        self.company_name_elements = [
+            DummyElement(),
+        ]
+        self.company_name_elements[0].text = "株式会社テストカンパニー"
 
     def get(self, url: str) -> None:
         self.visited_url = url
@@ -72,6 +78,9 @@ class DummyDriver:
         # get_item_urls用の要素リストを返す
         if "styles_bigCard__pKdMA" in value:
             return self.item_elements
+        # get_company_name用の要素リストを返す
+        if "styles_bodyText__KY7__" in value:
+            return self.company_name_elements
         return []
 
 
@@ -102,3 +111,11 @@ def test_get_item_urls_with_mock() -> None:
     assert len(urls) == 3
     assert urls[0] == "https://next.rikunabi.com/datai1"
     assert urls[-1] == "https://next.rikunabi.com/datai3"
+
+
+def test_get_company_name_with_mock() -> None:
+    """get_company_name() のモックテスト"""
+    dummy_driver = DummyDriver()
+    company_name = get_company_name(dummy_driver)
+
+    assert company_name == "株式会社テストカンパニー"
