@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from job_data_pipeline.job_scraper import (
+    collect_all_urls,
     get_company_name,
     get_info,
     get_item_urls,
@@ -83,10 +84,17 @@ class DummyDriver:
 
         self.table_elements = [DummyTableElement()]
 
+        # 企業件数用モック
+        self.total_num_element = DummyElement()
+        self.total_num_element.text = "200"
+
     def get(self, url: str) -> None:
         self.visited_url = url
 
     def find_element(self, by: str, value: str) -> DummyElement:
+        # collect_all_urls用の企業件数要素を返す
+        if "span.styles_bodyText__KY7__" in value:
+            return self.total_num_element
         # ページネーションを探して、pagination_element を返す
         if "pagination" in value or "styles_module__5CsjK" in value:
             return self.pagination_element
@@ -161,3 +169,24 @@ def test_get_info_with_mock() -> None:
     assert data["勤務地"] == "東京都千代田区"
     assert data["給与"] == "月給30万円~"
     assert data["勤務時間"] == "9:00~18:00"
+
+
+def test_get_info_with_mock_no_table() -> None:
+    """collect_all_urls() のモックテスト"""
+    dummy_driver = DummyDriver()
+
+    mock_urls = [
+        ["https://next.rikunabi.com/datai1", "https://next.rikunabi.com/datai2"],
+        ["https://next.rikunabi.com/datai3", "https://next.rikunabi.com/datai4"],
+        ["https://next.rikunabi.com/datai5", "https://next.rikunabi.com/datai6"],
+    ]
+    with (
+        patch("job_data_pipeline.job_scraper.get_item_urls", side_effect=mock_urls),
+        patch("job_data_pipeline.job_scraper.update_page") as mock_update_page,
+    ):
+        urls = collect_all_urls(dummy_driver)
+
+    assert len(urls) == 6
+    assert urls[0] == "https://next.rikunabi.com/datai1"
+    assert urls[-1] == "https://next.rikunabi.com/datai6"
+    assert mock_update_page.call_count == 3
