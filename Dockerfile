@@ -8,7 +8,8 @@ FROM python:3.12-slim-bookworm
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         ca-certificates curl fonts-ipafont-gothic gcc git locales sudo tmux tzdata vim zsh && \
-    apt-get clean && \
+        wget unzip gnupg libnss3 libgconf-2-4 libxi6 libxrandr2 libxcomposite1 libxcursor1 \
+        libasound2 libxdamage1 libxss1 libxtst6 libglib2.0-0 libgbm-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # 言語設定
@@ -17,6 +18,15 @@ RUN echo "ja_JP UTF-8" > /etc/locale.gen && \
 ENV LANG=ja_JP.UTF-8
 ENV LC_ALL=ja_JP.UTF-8
 ENV TZ=Asia/Tokyo
+
+# Chrome + ChromeDriverのインストール
+RUN apt-get update && \
+    apt-get install -y chromium chromium-driver && \
+    rm -rf /var/lib/apt/lists/*
+
+# Chromeのパスを明示
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # uvのインストール
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
