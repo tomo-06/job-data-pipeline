@@ -87,5 +87,5 @@ def get_info(driver: webdriver.Chrome) -> Dict[str, str]:
     if table_elements:
         table_html = table_elements[0].get_attribute("outerHTML")
         df = pd.read_html(table_html)[0]
-        data.update({i_row[0]: i_row[1] for _, i_row in df.interrows()})
+        data.update({i_row[0]: i_row[1] for _, i_row in df.iterrows()})
     return data

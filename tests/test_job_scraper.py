@@ -1,6 +1,11 @@
 # tests/test_job_scraper.py
+from unittest.mock import patch
+
+import pandas as pd
+
 from job_data_pipeline.job_scraper import (
     get_company_name,
+    get_info,
     get_item_urls,
     search_jobs,
     update_page,
@@ -45,6 +50,7 @@ class DummyDriver:
     def __init__(self) -> None:
         self.visited_url = ""
         self.input_element = DummyElement()
+
         # ページネーション用モック
         self.pagination_element = DummyElement()
         self.pagination_element.sub_elements = [
@@ -64,6 +70,12 @@ class DummyDriver:
         ]
         self.company_name_elements[0].text = "株式会社テストカンパニー"
 
+        # 求人詳細テーブル用モック
+        self.table_elements = [DummyElement()]
+        self.table_elements[0].get_attribute = (
+            lambda name: "<table><tr><td>勤務地</td><td>東京都千代田区</td></tr></table>"
+        )
+
     def get(self, url: str) -> None:
         self.visited_url = url
 
@@ -81,6 +93,9 @@ class DummyDriver:
         # get_company_name用の要素リストを返す
         if "styles_bodyText__KY7__" in value:
             return self.company_name_elements
+        # get_info用の要素リストを返す
+        if "styles_tableAboutApplication__9iz5B" in value:
+            return self.table_elements
         return []
 
 
@@ -119,3 +134,23 @@ def test_get_company_name_with_mock() -> None:
     company_name = get_company_name(dummy_driver)
 
     assert company_name == "株式会社テストカンパニー"
+
+
+def test_get_info_with_mock() -> None:
+    """get_info() のモックテスト"""
+    dummy_driver = DummyDriver()
+
+    mock_df = pd.DataFrame(
+        {
+            0: ["勤務地", "給与", "勤務時間"],
+            1: ["東京都千代田区", "月給30万円~", "9:00~18:00"],
+        }
+    )
+
+    with patch("pandas.read_html", return_value=[mock_df]):
+        data = get_info(dummy_driver)
+
+    assert data["会社名"] == "株式会社テストカンパニー"
+    assert data["勤務地"] == "東京都千代田区"
+    assert data["給与"] == "月給30万円~"
+    assert data["勤務時間"] == "9:00~18:00"
