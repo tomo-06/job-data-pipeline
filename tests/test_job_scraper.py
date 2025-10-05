@@ -8,7 +8,7 @@ from job_data_pipeline.job_scraper import (
     get_company_name,
     get_info,
     get_item_urls,
-    scrape_detailes,
+    scrape_details,
     search_jobs,
     update_page,
 )
@@ -210,7 +210,7 @@ def test_scrape_details_with_mock() -> None:
         patch("job_data_pipeline.job_scraper.get_info", side_effect=mock_info_results),
         patch("job_data_pipeline.job_scraper.time.sleep"),
     ):
-        results = scrape_detailes(dummy_driver, dummy_urls)
+        results = scrape_details(dummy_driver, dummy_urls)
 
     assert results[0]["会社名"] == "株式会社テスト1"
     assert results[1]["勤務地"] == "大阪"

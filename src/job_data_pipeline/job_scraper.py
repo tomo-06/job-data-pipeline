@@ -116,3 +116,19 @@ def scrape_details(
         time.sleep(sleep_time)
         results.append(get_info(driver))
     return results
+
+
+# ================================
+# メイン処理
+# ================================
+def run_scraping(search_word: str) -> pd.DataFrame:
+    """検索ワードを指定してスクレイピング全体を実行"""
+    driver = init_driver()
+    try:
+        search_jobs(driver, search_word)
+        project_urls = collect_all_urls(driver)
+        resuts = scrape_details(driver, project_urls)
+        df = pd.DataFrame(resuts)
+        return df
+    finally:
+        driver.quit()
