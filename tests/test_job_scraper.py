@@ -8,6 +8,7 @@ from job_data_pipeline.job_scraper import (
     get_company_name,
     get_info,
     get_item_urls,
+    run_scraping,
     scrape_details,
     search_jobs,
     update_page,
@@ -215,3 +216,43 @@ def test_scrape_details_with_mock() -> None:
     assert results[0]["会社名"] == "株式会社テスト1"
     assert results[1]["勤務地"] == "大阪"
     assert dummy_driver.visited_url == "https://next.rikunabi.com/datai2"
+
+
+def test_run_scraping_with_mock() -> None:
+    """run_scraping() のモックテスト"""
+    dummy_driver = DummyDriver()
+    dummy_urls = [
+        "https://next.rikunabi.com/datai1",
+        "https://next.rikunabi.com/datai2",
+    ]
+
+    dummy_details = [
+        {"会社名": "株式会社テストA", "勤務地": "東京"},
+        {"会社名": "株式会社テストB", "勤務地": "大阪"},
+    ]
+
+    with (
+        patch("job_data_pipeline.job_scraper.init_driver", return_value=dummy_driver),
+        patch("job_data_pipeline.job_scraper.search_jobs") as mock_search,
+        patch(
+            "job_data_pipeline.job_scraper.collect_all_urls", return_value=dummy_urls
+        ),
+        patch(
+            "job_data_pipeline.job_scraper.scrape_details", return_value=dummy_details
+        ),
+        patch(
+            "job_data_pipeline.job_scraper.pd.DataFrame",
+            side_effect=lambda x: pd.DataFrame(x),
+        ) as mock_df,
+        patch.object(dummy_driver, "quit") as mock_quit,
+    ):
+        df = run_scraping("データアナリスト")
+
+    mock_search.assert_called_once_with(dummy_driver, "データアナリスト")
+    mock_df.assert_called_once()
+    mock_quit.assert_called_once()
+
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 2
+    assert set(df.columns) == {"会社名", "勤務地"}
+    assert df.iloc[0]["会社名"] == "株式会社テストA"
