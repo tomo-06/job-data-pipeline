@@ -104,3 +104,15 @@ def get_info(driver: webdriver.Chrome) -> Dict[str, str]:
         df = pd.read_html(table_html)[0]
         data.update({i_row[0]: i_row[1] for _, i_row in df.iterrows()})
     return data
+
+
+def scrape_details(
+    driver: webdriver.Chrome, project_urls: List[str]
+) -> List[Dict[str, str]]:
+    """求人詳細ページをスクレイピング"""
+    results: List[Dict[str, str]] = []
+    for i_url in project_urls:
+        driver.get(i_url)
+        time.sleep(sleep_time)
+        results.append(get_info(driver))
+    return results
