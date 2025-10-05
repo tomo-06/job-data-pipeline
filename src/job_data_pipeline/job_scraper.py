@@ -58,8 +58,23 @@ def update_page(driver: webdriver.Chrome) -> None:
     """次のページに遷移"""
     ul_element = driver.find_element(By.CSS_SELECTOR, ".styles_module__5CsjK")
     a_element = ul_element.find_elements(By.TAG_NAME, "a")[-1]
-    driver.get(a_element.get_attribute("href"))
+    href = a_element.get_attribute("href") or ""
+    driver.get(href)
     time.sleep(sleep_time)
+
+
+def collect_all_urls(driver: webdriver.Chrome) -> List[str]:
+    """全ページの求人URLを収集"""
+    total_num = int(
+        driver.find_element(By.CSS_SELECTOR, "span.styles_bodyText__KY7__").text
+    )
+    total_page_num = total_num // 100 + 1
+
+    urls: List[str] = []
+    for _ in range(total_page_num):
+        urls.extend(get_item_urls(driver))
+        update_page(driver)
+    return urls
 
 
 # ================================
@@ -68,7 +83,7 @@ def update_page(driver: webdriver.Chrome) -> None:
 def get_item_urls(driver: webdriver.Chrome) -> List[str]:
     """一覧ページから求人詳細URLを取得"""
     elements = driver.find_elements(By.CLASS_NAME, "a.styles_bigCard__pKdMA")
-    return [i.get_attribute("href") for i in elements]
+    return [href for i in elements if (href := i.get_attribute("href"))]
 
 
 def get_company_name(driver: webdriver.Chrome) -> str:

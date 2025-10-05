@@ -71,10 +71,17 @@ class DummyDriver:
         self.company_name_elements[0].text = "株式会社テストカンパニー"
 
         # 求人詳細テーブル用モック
-        self.table_elements = [DummyElement()]
-        self.table_elements[0].get_attribute = (
-            lambda name: "<table><tr><td>勤務地</td><td>東京都千代田区</td></tr></table>"
-        )
+        class DummyTableElement(DummyElement):
+            """table要素を模倣するモック"""
+
+            def get_attribute(self, name: str) -> str:
+                if name == "outerHTML":
+                    return (
+                        "<table><tr><td>勤務地</td><td>東京都千代田区</td></tr></table>"
+                    )
+                return ""
+
+        self.table_elements = [DummyTableElement()]
 
     def get(self, url: str) -> None:
         self.visited_url = url
@@ -95,7 +102,7 @@ class DummyDriver:
             return self.company_name_elements
         # get_info用の要素リストを返す
         if "styles_tableAboutApplication__9iz5B" in value:
-            return self.table_elements
+            return self.table_elements  # type: ignore
         return []
 
 
