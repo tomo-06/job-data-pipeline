@@ -7,7 +7,7 @@ FROM python:3.12-slim-bookworm
 # パッケージのインストール
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        ca-certificates curl fonts-ipafont-gothic gcc git locales sudo tmux tzdata vim zsh && \
+        ca-certificates curl fonts-ipafont-gothic gcc git locales sudo tmux tzdata vim zsh \
         wget unzip gnupg libnss3 libgconf-2-4 libxi6 libxrandr2 libxcomposite1 libxcursor1 \
         libasound2 libxdamage1 libxss1 libxtst6 libglib2.0-0 libgbm-dev && \
     rm -rf /var/lib/apt/lists/*
@@ -19,9 +19,9 @@ ENV LANG=ja_JP.UTF-8
 ENV LC_ALL=ja_JP.UTF-8
 ENV TZ=Asia/Tokyo
 
-# Chrome + ChromeDriverのインストール
+# Chromeのインストール
 RUN apt-get update && \
-    apt-get install -y chromium chromium-driver && \
+    apt-get install -y chromium && \
     rm -rf /var/lib/apt/lists/*
 
 # Chromeのパスを明示
