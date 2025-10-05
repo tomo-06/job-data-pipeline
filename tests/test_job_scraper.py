@@ -115,6 +115,9 @@ class DummyDriver:
             return self.table_elements  # type: ignore
         return []
 
+    def quit(self) -> None:
+        pass
+
 
 # ================================
 # テストケース
@@ -231,6 +234,9 @@ def test_run_scraping_with_mock() -> None:
         {"会社名": "株式会社テストB", "勤務地": "大阪"},
     ]
 
+    real_dataframe = pd.DataFrame
+
+    # patchで各関数をモック化
     with (
         patch("job_data_pipeline.job_scraper.init_driver", return_value=dummy_driver),
         patch("job_data_pipeline.job_scraper.search_jobs") as mock_search,
@@ -242,16 +248,18 @@ def test_run_scraping_with_mock() -> None:
         ),
         patch(
             "job_data_pipeline.job_scraper.pd.DataFrame",
-            side_effect=lambda x: pd.DataFrame(x),
+            side_effect=lambda x: real_dataframe(x),
         ) as mock_df,
         patch.object(dummy_driver, "quit") as mock_quit,
     ):
         df = run_scraping("データアナリスト")
 
+    # 各関数が呼ばれたことを確認
     mock_search.assert_called_once_with(dummy_driver, "データアナリスト")
     mock_df.assert_called_once()
     mock_quit.assert_called_once()
 
+    # DataFrameの内容を確認
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 2
     assert set(df.columns) == {"会社名", "勤務地"}
