@@ -2,6 +2,7 @@
 リクナビNEXTから求人情報をスクレイピングする
 """
 
+import csv
 import time
 from typing import Dict, List
 
@@ -28,6 +29,7 @@ def init_driver() -> webdriver.Chrome:
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--lang=ja")
+    chrome_options.add_argument("--headless=new")
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -132,3 +134,18 @@ def run_scraping(search_word: str) -> pd.DataFrame:
         return df
     finally:
         driver.quit()
+
+
+# ================================
+# 単体実行用
+# ================================
+if __name__ == "__main__":
+    df = run_scraping("データアナリスト")
+    df.to_csv(
+        csv_name,
+        quotechar=csv.QUOTE_ALL,
+        encoding="utf-8",
+        lineterminator="\n",
+        index=False,
+    )
+    print("Scraping completed!:", csv_name)
