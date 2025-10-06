@@ -10,7 +10,16 @@ RUN apt-get update && \
         ca-certificates curl fonts-ipafont-gothic gcc git locales sudo tmux tzdata vim zsh \
         wget unzip gnupg libnss3 libgconf-2-4 libxi6 libxrandr2 libxcomposite1 libxcursor1 \
         libasound2 libxdamage1 libxss1 libxtst6 libglib2.0-0 libgbm-dev && \
+    # Google公式Chromeリポジトリを登録してインストール
+    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
+
+# Chromeのパスを明示
+ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # 言語設定
 RUN echo "ja_JP UTF-8" > /etc/locale.gen && \
@@ -18,15 +27,6 @@ RUN echo "ja_JP UTF-8" > /etc/locale.gen && \
 ENV LANG=ja_JP.UTF-8
 ENV LC_ALL=ja_JP.UTF-8
 ENV TZ=Asia/Tokyo
-
-# Chromeのインストール
-RUN apt-get update && \
-    apt-get install -y chromium && \
-    rm -rf /var/lib/apt/lists/*
-
-# Chromeのパスを明示
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # uvのインストール
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
