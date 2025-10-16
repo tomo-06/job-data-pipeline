@@ -3,6 +3,7 @@
 """
 
 import csv
+import re
 import time
 from typing import Dict, List
 
@@ -17,7 +18,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 # 定数設定
 # ================================
 sleep_time = 3
-csv_name = "../data/rikunabi.csv"
 url = "https://next.rikunabi.com/"
 
 
@@ -67,14 +67,28 @@ def update_page(driver: webdriver.Chrome) -> None:
 
 def collect_all_urls(driver: webdriver.Chrome) -> List[str]:
     """全ページの求人URLを収集"""
-    total_num = int(
-        driver.find_element(By.CSS_SELECTOR, "span.styles_bodyText__KY7__").text
+    element = (
+        driver.find_element(By.CLASS_NAME, "styles_headerCard__BdI1Z")
+        .find_element(By.TAG_NAME, "span")
+        .text
     )
+    if "以上" in element:
+        total_num = int("".join(filter(str.isdigit, element)))
+    else:
+        match = re.search(r"〜\s*(\d+)", element)
+        if match:
+            total_num = int(match.group(1))
+        else:
+            print("Error: 想定外の形式のため、ページ数を取得できません。")
+            total_num = 0
+
     total_page_num = total_num // 100 + 1
 
     urls: List[str] = []
     for _ in range(total_page_num):
         urls.extend(get_item_urls(driver))
+        if total_page_num == 1:
+            break
         update_page(driver)
     return urls
 
@@ -84,14 +98,16 @@ def collect_all_urls(driver: webdriver.Chrome) -> List[str]:
 # ================================
 def get_item_urls(driver: webdriver.Chrome) -> List[str]:
     """一覧ページから求人詳細URLを取得"""
-    elements = driver.find_elements(By.CLASS_NAME, "a.styles_bigCard__pKdMA")
+    elements = driver.find_elements(By.CLASS_NAME, "styles_bigCard__pKdMA")
     return [href for i in elements if (href := i.get_attribute("href"))]
 
 
 def get_company_name(driver: webdriver.Chrome) -> str:
     """企業名を取得"""
-    company_name_element = driver.find_elements(By.CLASS_NAME, "styles_bodyText__KY7__")
-    return company_name_element[0].text if company_name_element else "不明"
+    company_name_element = driver.find_element(
+        By.CLASS_NAME, "styles_company___2dC_"
+    ).find_element(By.TAG_NAME, "p")
+    return company_name_element.text if company_name_element else "不明"
 
 
 def get_info(driver: webdriver.Chrome) -> Dict[str, str]:
@@ -140,10 +156,12 @@ def run_scraping(search_word: str) -> pd.DataFrame:
 # 単体実行用
 # ================================
 if __name__ == "__main__":
-    df = run_scraping("データアナリスト")
+    df = run_scraping("データスチュワード")
+    csv_name = "/app/data/rikunabi.csv"
     df.to_csv(
         csv_name,
-        quotechar=csv.QUOTE_ALL,
+        quoting=csv.QUOTE_ALL,
+        escapechar='"',
         encoding="utf-8",
         lineterminator="\n",
         index=False,
