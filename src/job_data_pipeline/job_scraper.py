@@ -156,7 +156,7 @@ def run_scraping(search_word: str) -> pd.DataFrame:
 # 単体実行用
 # ================================
 if __name__ == "__main__":
-    df = run_scraping("データスチュワード")
+    df = run_scraping("データサイエンティスト")
     csv_name = "/app/data/rikunabi.csv"
     df.to_csv(
         csv_name,
