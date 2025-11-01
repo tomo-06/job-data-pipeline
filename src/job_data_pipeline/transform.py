@@ -14,12 +14,11 @@ df = pd.read_csv("/app/data/rikunabi.csv")
 
 def clean_company_name(name: str) -> str:
     """企業名のクレンジング処理
+    -  欠損値は「不明」とする
     -  全角スペースを半角に変換
     -  本店・支店・東京・大阪などのノイズを削除
     -  省略表記の正規化（(株) → 株式会社）
     """
-    if pd.isna(name):
-        return name
 
     # 全角スペースを半角に変換
     name = name.replace("　", " ")
@@ -32,5 +31,12 @@ def clean_company_name(name: str) -> str:
     name = re.sub(r"\(有\)", "有限会社", name)
     name = re.sub(r"\（株\）", "株式会社", name)
     name = re.sub(r"\（有\）", "有限会社", name)
+
+    # 先頭・末尾の空白削除
+    name = re.sub(r"\s+", " ", name.strip())
+
+    # 欠損値処理
+    if pd.isna(name):
+        return "不明"
 
     return name
