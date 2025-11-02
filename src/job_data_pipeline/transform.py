@@ -19,6 +19,8 @@ def clean_company_name(name: str) -> str:
     -  本店・支店・東京・大阪などのノイズを削除
     -  省略表記の正規化（(株) → 株式会社）
     """
+    # NaNとNoneを空字列に変換 ※replace関数はNaNを扱えないため
+    name = "" if pd.isna(name) else str(name)
 
     # 全角スペースを半角に変換
     name = name.replace("　", " ")
@@ -36,7 +38,4 @@ def clean_company_name(name: str) -> str:
     name = re.sub(r"\s+", " ", name.strip())
 
     # 欠損値処理
-    if pd.isna(name):
-        return "不明"
-
-    return name
+    return name if name else "不明"
